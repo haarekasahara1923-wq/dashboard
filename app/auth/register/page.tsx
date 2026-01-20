@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useState } from "react"
+import { useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { MessageSquare, AlertCircle } from "lucide-react"
 import { registerTenant } from "../actions"
 
-export default function RegisterPage() {
+function RegisterForm() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const plan = searchParams.get("plan") // 'monthly' or 'yearly'
@@ -106,5 +106,13 @@ export default function RegisterPage() {
                 </CardFooter>
             </form>
         </Card>
+    )
+}
+
+export default function RegisterPage() {
+    return (
+        <Suspense fallback={<div className="flex justify-center p-8">Loading...</div>}>
+            <RegisterForm />
+        </Suspense>
     )
 }
