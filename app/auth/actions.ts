@@ -1,7 +1,6 @@
 'use server'
 
 import { db } from "@/lib/db"
-import { redirect } from "next/navigation"
 import { IndustryType } from "@prisma/client"
 import bcrypt from "bcryptjs"
 
@@ -40,7 +39,7 @@ export async function registerTenant(formData: FormData) {
     const trialExpires = new Date()
     trialExpires.setDate(trialExpires.getDate() + 7)
 
-    const tenant = await db.tenant.create({
+    await db.tenant.create({
         data: {
             name: orgName,
             industry: industry,
