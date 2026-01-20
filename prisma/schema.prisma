@@ -1,0 +1,230 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  MANAGER
+  STAFF
+}
+
+enum IndustryType {
+  EDUCATION
+  REAL_ESTATE
+  HEALTHCARE
+}
+
+enum SubscriptionStatus {
+  TRIAL
+  ACTIVE
+  PAUSED
+  CANCELLED
+}
+
+enum SubscriptionPlan {
+  STARTER
+  PRO
+  ENTERPRISE
+}
+
+model Tenant {
+  id                  String             @id @default(cuid())
+  name                String
+  industry            IndustryType
+  subscriptionStatus  SubscriptionStatus @default(TRIAL)
+  subscriptionPlan    SubscriptionPlan   @default(STARTER)
+  subscriptionExpires DateTime?
+  whatsappConfig      Json?              // For WhatsApp API credentials/settings
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  users           User[]
+  automationRules AutomationRule[]
+
+  // Education Relations
+  students   Student[]
+  batches    Batch[]
+  admissions Admission[]
+  fees       Fee[]
+
+  // Real Estate Relations
+  leads      Lead[]
+  properties Property[]
+  deals      Deal[]
+
+  // Healthcare Relations
+  patients     Patient[]
+  doctors      Doctor[]
+  appointments Appointment[]
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String?
+  email     String   @unique
+  password  String // Hashed
+  role      Role     @default(STAFF)
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// --- Automation Engine ---
+
+enum TriggerType {
+  LEAD_CREATED
+  ADMISSION_ENQUIRY
+  FEE_DUE
+  FEE_OVERDUE
+  STUDENT_ABSENT
+  APPOINTMENT_BOOKED
+  SITE_VISIT_SCHEDULED
+  PAYMENT_RECEIVED
+}
+
+enum ActionType {
+  SEND_WHATSAPP
+  ASSIGN_STAFF
+  UPDATE_STATUS
+  NOTIFY_ADMIN
+}
+
+model AutomationRule {
+  id        String      @id @default(cuid())
+  name      String
+  isActive  Boolean     @default(true)
+  trigger   TriggerType
+  condition Json?       // Flexible JSON for conditions
+  action    ActionType
+  payload   Json?       // Details for the action (e.g. message template)
+  tenantId  String
+  tenant    Tenant      @relation(fields: [tenantId], references: [id])
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+// --- Education Modules ---
+
+model Student {
+  id         String      @id @default(cuid())
+  firstName  String
+  lastName   String
+  email      String?
+  phone      String?
+  tenantId   String
+  tenant     Tenant      @relation(fields: [tenantId], references: [id])
+  admissions Admission[]
+  fees       Fee[]
+  attendance Attendance[]
+}
+
+model Batch {
+  id       String    @id @default(cuid())
+  name     String
+  tenantId String
+  tenant   Tenant    @relation(fields: [tenantId], references: [id])
+}
+
+model Admission {
+  id        String   @id @default(cuid())
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id])
+  status    String
+  date      DateTime @default(now())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+}
+
+model Fee {
+  id        String   @id @default(cuid())
+  amount    Float
+  dueDate   DateTime
+  status    String   // PAID, PENDING, OVERDUE
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id])
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+}
+
+model Attendance {
+  id        String   @id @default(cuid())
+  date      DateTime
+  present   Boolean
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id])
+}
+
+// --- Real Estate Modules ---
+
+model Lead {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String
+  status    String   // HOT, WARM, COLD
+  source    String?
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  siteVisits SiteVisit[]
+}
+
+model Property {
+  id       String @id @default(cuid())
+  title    String
+  price    Float
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+}
+
+model SiteVisit {
+  id        String   @id @default(cuid())
+  date      DateTime
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id])
+}
+
+model Deal {
+  id       String   @id @default(cuid())
+  amount   Float
+  status   String
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+}
+
+// --- Healthcare Modules ---
+
+model Patient {
+  id           String        @id @default(cuid())
+  name         String
+  phone        String
+  tenantId     String
+  tenant       Tenant        @relation(fields: [tenantId], references: [id])
+  appointments Appointment[]
+}
+
+model Doctor {
+  id           String        @id @default(cuid())
+  name         String
+  specialty    String
+  tenantId     String
+  tenant       Tenant        @relation(fields: [tenantId], references: [id])
+  appointments Appointment[]
+}
+
+model Appointment {
+  id        String   @id @default(cuid())
+  date      DateTime
+  status    String   // SCHEDULED, COMPLETED, CANCELLED
+  patientId String
+  patient   Patient  @relation(fields: [patientId], references: [id])
+  doctorId  String
+  doctor    Doctor   @relation(fields: [doctorId], references: [id])
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+}
