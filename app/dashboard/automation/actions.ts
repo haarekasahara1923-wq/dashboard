@@ -1,4 +1,3 @@
-'use server'
 
 import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
@@ -23,6 +22,7 @@ export async function getAutomationRules() {
 }
 
 export async function toggleRuleStatus(ruleId: string, currentStatus: boolean) {
+    'use server'
     await db.automationRule.update({
         where: { id: ruleId },
         data: { isActive: !currentStatus }
@@ -31,6 +31,7 @@ export async function toggleRuleStatus(ruleId: string, currentStatus: boolean) {
 }
 
 export async function deleteRule(ruleId: string) {
+    'use server'
     await db.automationRule.delete({
         where: { id: ruleId }
     })
@@ -38,6 +39,7 @@ export async function deleteRule(ruleId: string) {
 }
 
 export async function createRule(formData: FormData) {
+    'use server'
     const tenant = await getDevTenant()
 
     const name = formData.get("name") as string
@@ -58,3 +60,4 @@ export async function createRule(formData: FormData) {
 
     revalidatePath("/dashboard/automation")
 }
+

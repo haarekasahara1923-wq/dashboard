@@ -1,4 +1,3 @@
-'use server'
 
 import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
@@ -51,6 +50,7 @@ export async function getLeads() {
 import { sendWhatsAppMessage } from "@/lib/whatsapp/client"
 
 export async function createLead(formData: FormData) {
+    'use server'
     const tenant = await getDevTenant()
 
     const name = formData.get("name") as string
@@ -88,6 +88,7 @@ export async function createLead(formData: FormData) {
 }
 
 export async function scheduleSiteVisit(leadId: string, date: Date) {
+    'use server'
     if (!leadId || !date) throw new Error("Lead ID and Date are required")
 
     const visit = await db.siteVisit.create({
@@ -139,3 +140,4 @@ export async function getUpcomingVisits() {
         take: 5
     })
 }
+

@@ -1,4 +1,3 @@
-'use server'
 
 import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
@@ -83,6 +82,7 @@ export async function getDoctors() {
 }
 
 export async function createPatient(formData: FormData) {
+    'use server'
     const tenant = await getDevTenant()
     const name = formData.get("name") as string
     const phone = formData.get("phone") as string
@@ -96,6 +96,7 @@ export async function createPatient(formData: FormData) {
 }
 
 export async function bookAppointment(formData: FormData) {
+    'use server'
     const tenant = await getDevTenant()
     const patientName = formData.get("patientName") as string
     const patientPhone = formData.get("patientPhone") as string
@@ -144,3 +145,4 @@ export async function bookAppointment(formData: FormData) {
 
     revalidatePath("/dashboard/healthcare")
 }
+

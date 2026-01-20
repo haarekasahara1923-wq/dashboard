@@ -1,4 +1,3 @@
-'use server'
 
 import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
@@ -52,6 +51,7 @@ export async function getStudents() {
 }
 
 export async function registerStudent(formData: FormData) {
+    'use server'
     const tenant = await getDevTenant()
 
     const firstName = formData.get("firstName") as string
@@ -89,6 +89,7 @@ export async function registerStudent(formData: FormData) {
 }
 
 export async function createFeeRecord(formData: FormData) {
+    'use server'
     const tenant = await getDevTenant()
     const studentId = formData.get("studentId") as string
     const amount = parseFloat(formData.get("amount") as string)
@@ -127,3 +128,4 @@ export async function createFeeRecord(formData: FormData) {
 
     revalidatePath("/dashboard/education")
 }
+
