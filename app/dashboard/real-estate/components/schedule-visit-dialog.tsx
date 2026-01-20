@@ -23,7 +23,7 @@ import { CalendarIcon, Clock } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { scheduleSiteVisit } from "../actions"
+import { scheduleSiteVisit } from "../server-actions/mutations"
 
 export function ScheduleVisitDialog({ leads }: { leads: any[] }) {
     const [open, setOpen] = useState(false)

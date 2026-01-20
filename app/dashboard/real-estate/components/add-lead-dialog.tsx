@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Plus } from "lucide-react"
-import { createLead } from "../actions"
+import { createLead } from "../server-actions/mutations"
 
 export function AddLeadDialog() {
     const [open, setOpen] = useState(false)

@@ -9,7 +9,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { toggleRuleStatus, deleteRule } from "../actions"
+import { toggleRuleStatus, deleteRule } from "../server-actions/mutations"
 
 export function AutomationList({ rules }: { rules: any[] }) {
     if (rules.length === 0) {

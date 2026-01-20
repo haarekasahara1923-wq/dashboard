@@ -21,7 +21,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { Plus } from "lucide-react"
-import { createRule } from "../actions"
+import { createRule } from "../server-actions/mutations"
 
 export function CreateRuleDialog() {
     const [open, setOpen] = useState(false)
