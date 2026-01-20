@@ -52,7 +52,7 @@ export default function EducationDashboard() {
     )
 }
 
-function KpiCard({ title, value, icon: Icon, trend, alert }: { title: string, value: string, icon: any, trend: string, alert?: boolean }) {
+function KpiCard({ title, value, icon: Icon, trend, alert }: { title: string, value: string, icon: React.ElementType, trend: string, alert?: boolean }) {
     return (
         <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -90,9 +90,9 @@ function RecentEnquiries() {
                     </div>
                     <div className="flex flex-col items-end gap-1">
                         <div className={`text-xs px-2 py-0.5 rounded-full font-medium ${enquiry.status === "New" ? "bg-blue-100 text-blue-700" :
-                                enquiry.status === "Admitted" ? "bg-green-100 text-green-700" :
-                                    enquiry.status === "Closed" ? "bg-red-100 text-red-700" :
-                                        "bg-yellow-100 text-yellow-700"
+                            enquiry.status === "Admitted" ? "bg-green-100 text-green-700" :
+                                enquiry.status === "Closed" ? "bg-red-100 text-red-700" :
+                                    "bg-yellow-100 text-yellow-700"
                             }`}>
                             {enquiry.status}
                         </div>

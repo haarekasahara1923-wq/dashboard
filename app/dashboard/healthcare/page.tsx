@@ -22,7 +22,7 @@ export default function HealthcareDashboard() {
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
                 <Card className="col-span-4">
                     <CardHeader>
-                        <CardTitle>Today's Schedule</CardTitle>
+                        <CardTitle>Today&apos;s Schedule</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <ScheduleList />
@@ -46,7 +46,7 @@ export default function HealthcareDashboard() {
     )
 }
 
-function KpiCard({ title, value, icon: Icon, trend }: { title: string, value: string, icon: any, trend: string }) {
+function KpiCard({ title, value, icon: Icon, trend }: { title: string, value: string, icon: React.ElementType, trend: string }) {
     return (
         <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -81,9 +81,9 @@ function ScheduleList() {
                         </div>
                     </div>
                     <div className={`text-xs px-2 py-0.5 rounded-full font-medium ${appt.status === "Completed" ? "bg-green-100 text-green-700" :
-                            appt.status === "In Progress" ? "bg-blue-100 text-blue-700" :
-                                appt.status === "Waiting" ? "bg-orange-100 text-orange-700" :
-                                    "bg-gray-100 text-gray-700"
+                        appt.status === "In Progress" ? "bg-blue-100 text-blue-700" :
+                            appt.status === "Waiting" ? "bg-orange-100 text-orange-700" :
+                                "bg-gray-100 text-gray-700"
                         }`}>
                         {appt.status}
                     </div>

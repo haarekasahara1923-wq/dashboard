@@ -52,7 +52,7 @@ export function Sidebar() {
     )
 }
 
-function NavItem({ href, icon: Icon, children }: { href: string, icon: any, children: React.ReactNode }) {
+function NavItem({ href, icon: Icon, children }: { href: string, icon: React.ElementType, children: React.ReactNode }) {
     const pathname = usePathname()
     const isActive = pathname === href || pathname?.startsWith(href + "/")
 
@@ -78,7 +78,7 @@ function SectionHeader({ children }: { children: React.ReactNode }) {
     )
 }
 
-function Bell(props: any) {
+function Bell(props: React.SVGProps<SVGSVGElement>) {
     return (
         <svg
             {...props}

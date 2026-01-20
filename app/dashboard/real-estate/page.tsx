@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Users, Home, Calendar, IndianRupee, TrendingUp } from "lucide-react"
+import { Users, Home, Calendar, IndianRupee } from "lucide-react"
 
 export default function RealEstateDashboard() {
     return (
@@ -42,7 +42,7 @@ export default function RealEstateDashboard() {
     )
 }
 
-function KpiCard({ title, value, icon: Icon, trend }: { title: string, value: string, icon: any, trend: string }) {
+function KpiCard({ title, value, icon: Icon, trend }: { title: string, value: string, icon: React.ElementType, trend: string }) {
     return (
         <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
