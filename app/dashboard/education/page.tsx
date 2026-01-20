@@ -1,29 +1,37 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Users, FileText, Banknote, AlertCircle } from "lucide-react"
+import { getEducationStats, getStudents } from "./actions"
+import { AddStudentDialog } from "./components/add-student-dialog"
+import { format } from "date-fns"
 
-export default function EducationDashboard() {
+export default async function EducationDashboard() {
+    const stats = await getEducationStats()
+    const students = await getStudents()
+
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold tracking-tight">Education Dashboard</h1>
-                {/* Date picker or filters could go here */}
+                <div className="flex gap-2">
+                    <AddStudentDialog />
+                </div>
             </div>
 
             {/* KPI Cards */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <KpiCard title="Total Enquiries" value="128" icon={FileText} trend="+12% from last month" />
-                <KpiCard title="Active Students" value="450" icon={Users} trend="+4 new this week" />
-                <KpiCard title="Fee Collected" value="₹ 4.2L" icon={Banknote} trend="+8% from last month" />
-                <KpiCard title="Pending Dues" value="₹ 85k" icon={AlertCircle} trend="15 students overdue" alert />
+                <KpiCard title="Total Students" value={stats.totalStudents.toString()} icon={Users} trend="Active Enrolled" />
+                <KpiCard title="Enquiries" value={stats.totalEnquiries.toString()} icon={FileText} trend="Total Database" />
+                <KpiCard title="Fee Collected" value={`₹ ${stats.feeCollected}`} icon={Banknote} trend="This Session" />
+                <KpiCard title="Pending Dues" value={`₹ ${stats.pendingDues}`} icon={AlertCircle} trend="Overdue" alert />
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
                 <Card className="col-span-4">
                     <CardHeader>
-                        <CardTitle>Recent Admissions & Enquiries</CardTitle>
+                        <CardTitle>Recent Students & Enquiries</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <RecentEnquiries />
+                        <RecentEnquiries students={students} />
                     </CardContent>
                 </Card>
                 <Card className="col-span-3">
@@ -33,7 +41,7 @@ export default function EducationDashboard() {
                     <CardContent>
                         {/* Placeholder for chart */}
                         <div className="h-[200px] flex items-center justify-center bg-muted/20 rounded-md border border-dashed">
-                            attendance_chart.png (Placeholder)
+                            <p className="text-muted-foreground text-sm">Attendance Chart Widget</p>
                         </div>
                         <div className="mt-4 space-y-2">
                             <div className="flex justify-between text-sm">
@@ -71,35 +79,28 @@ function KpiCard({ title, value, icon: Icon, trend, alert }: { title: string, va
     )
 }
 
-function RecentEnquiries() {
-    const enquiries = [
-        { name: "Rahul Kumar", course: "Class 11 (Science)", status: "New", date: "Today" },
-        { name: "Priya Singh", course: "NEET Prep", status: "Follow-up", date: "Yesterday" },
-        { name: "Amit Sharma", course: "Class 10", status: "Admitted", date: "2 days ago" },
-        { name: "Sneha Gupta", course: "JEE Mains", status: "New", date: "3 days ago" },
-        { name: "Vikram Malhotra", course: "Class 9", status: "Closed", date: "1 week ago" },
-    ]
+function RecentEnquiries({ students }: { students: any[] }) {
+    if (students.length === 0) {
+        return <p className="text-sm text-muted-foreground">No records found.</p>
+    }
 
     return (
         <div className="space-y-4">
-            {enquiries.map((enquiry, i) => (
+            {students.map((student, i) => (
                 <div key={i} className="flex items-center justify-between border-b pb-2 last:border-0 last:pb-0">
                     <div className="space-y-1">
-                        <p className="text-sm font-medium leading-none">{enquiry.name}</p>
-                        <p className="text-xs text-muted-foreground">{enquiry.course}</p>
+                        <p className="text-sm font-medium leading-none">{student.firstName} {student.lastName}</p>
+                        <p className="text-xs text-muted-foreground">{student.phone}</p>
                     </div>
                     <div className="flex flex-col items-end gap-1">
-                        <div className={`text-xs px-2 py-0.5 rounded-full font-medium ${enquiry.status === "New" ? "bg-blue-100 text-blue-700" :
-                            enquiry.status === "Admitted" ? "bg-green-100 text-green-700" :
-                                enquiry.status === "Closed" ? "bg-red-100 text-red-700" :
-                                    "bg-yellow-100 text-yellow-700"
-                            }`}>
-                            {enquiry.status}
+                        <div className="text-xs px-2 py-0.5 rounded-full font-medium bg-blue-100 text-blue-700">
+                            New
                         </div>
-                        <span className="text-xs text-muted-foreground">{enquiry.date}</span>
+                        {/* <span className="text-xs text-muted-foreground">{student.createdAt}</span> */}
                     </div>
                 </div>
             ))}
         </div>
     )
 }
+

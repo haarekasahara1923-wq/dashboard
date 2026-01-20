@@ -6,14 +6,18 @@ import { Building2, Calendar, ClipboardList, CreditCard, GraduationCap, Home, La
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
-export function Sidebar() {
+import { getTenantName } from "@/app/actions"
+
+export async function Sidebar() {
+    const tenantName = await getTenantName()
+
     return (
         <div className="hidden border-r bg-gray-100/40 md:block dark:bg-gray-800/40 w-[240px] lg:w-[280px] shrink-0 h-screen sticky top-0">
             <div className="flex flex-col gap-2 h-full">
                 <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
                     <Link href="/" className="flex items-center gap-2 font-semibold">
                         <MessageSquare className="h-6 w-6 text-primary" />
-                        <span className="">SaaSAuto</span>
+                        <span className="">{tenantName}</span>
                     </Link>
                     <Button variant="outline" size="icon" className="ml-auto h-8 w-8">
                         <Bell className="h-4 w-4" />
@@ -25,6 +29,7 @@ export function Sidebar() {
                         <NavItem href="/dashboard" icon={LayoutDashboard}>Overview</NavItem>
                         <NavItem href="/dashboard/automation" icon={Zap}>Automation</NavItem>
                         <NavItem href="/dashboard/whatsapp" icon={MessageSquare}>WhatsApp</NavItem>
+                        <NavItem href="/dashboard/billing" icon={CreditCard}>Billing & Plans</NavItem>
 
                         <SectionHeader>Education</SectionHeader>
                         <NavItem href="/dashboard/education" icon={GraduationCap}>Dashboard</NavItem>

@@ -1,40 +1,48 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Users, Home, Calendar, IndianRupee } from "lucide-react"
+import { getRealEstateStats, getLeads, getUpcomingVisits } from "./actions"
+import { AddLeadDialog } from "./components/add-lead-dialog"
+import { ScheduleVisitDialog } from "./components/schedule-visit-dialog"
+import { format } from "date-fns"
 
-export default function RealEstateDashboard() {
+export default async function RealEstateDashboard() {
+    const stats = await getRealEstateStats()
+    const leads = await getLeads()
+    const upcomingVisits = await getUpcomingVisits()
+
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold tracking-tight">Real Estate Dashboard</h1>
+                <div className="flex gap-2">
+                    <ScheduleVisitDialog leads={leads} />
+                    <AddLeadDialog />
+                </div>
             </div>
 
             {/* KPI Cards */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <KpiCard title="Hot Leads" value="42" icon={Users} trend="+8 from last week" />
-                <KpiCard title="Visits Scheduled" value="18" icon={Calendar} trend="For upcoming week" />
-                <KpiCard title="Deals Closed" value="4" icon={Home} trend="This month" />
-                <KpiCard title="Revenue" value="₹ 1.2Cr" icon={IndianRupee} trend="YTD" />
+                <KpiCard title="Total Leads" value={stats.totalLeads.toString()} icon={Users} trend="All time" />
+                <KpiCard title="Hot Leads" value={stats.hotLeads.toString()} icon={Users} trend="Need attention" />
+                <KpiCard title="Visits Scheduled" value={stats.scheduledVisits.toString()} icon={Calendar} trend="Upcoming" />
+                <KpiCard title="Deals Closed" value={stats.dealsClosed.toString()} icon={Home} trend="This month" />
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
                 <Card className="col-span-4">
                     <CardHeader>
-                        <CardTitle>Sales Pipeline</CardTitle>
+                        <CardTitle>Recent Leads</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <PipelineList />
+                        <PipelineList leads={leads} />
                     </CardContent>
                 </Card>
                 <Card className="col-span-3">
                     <CardHeader>
-                        <CardTitle>Agent Performance</CardTitle>
+                        <CardTitle>Upcoming Site Visits</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="space-y-4">
-                            <AgentRow name="Rajesh Kumar" leads="15" closed="2" />
-                            <AgentRow name="Sunita Verma" leads="22" closed="1" />
-                            <AgentRow name="Amit Patel" leads="8" closed="0" />
-                        </div>
+                        <UpcomingVisitsList visits={upcomingVisits} />
                     </CardContent>
                 </Card>
             </div>
@@ -57,26 +65,20 @@ function KpiCard({ title, value, icon: Icon, trend }: { title: string, value: st
     )
 }
 
-function PipelineList() {
-    const leads = [
-        { name: "Mr. Sharma", property: "3BHK - Sector 15", status: "Site Visit", amount: "₹ 85L" },
-        { name: "Mrs. Iyer", property: "Villa Plot 4", status: "Negotiation", amount: "₹ 1.5Cr" },
-        { name: "Dr. Gupta", property: "2BHK - City Center", status: "New Lead", amount: "₹ 55L" },
-        { name: "Tech Corp", property: "Office Space L2", status: "Contract", amount: "₹ 45k/mo" },
-    ]
+function PipelineList({ leads }: { leads: any[] }) {
     return (
         <div className="space-y-4">
+            {leads.length === 0 && <p className="text-sm text-muted-foreground">No leads found. Add one to get started.</p>}
             {leads.map((lead, i) => (
                 <div key={i} className="flex items-center justify-between border-b pb-2 last:border-0 last:pb-0">
                     <div className="space-y-1">
                         <p className="text-sm font-medium leading-none">{lead.name}</p>
-                        <p className="text-xs text-muted-foreground">{lead.property}</p>
+                        <p className="text-xs text-muted-foreground">{lead.source || "Direct"}</p>
                     </div>
                     <div className="flex flex-col items-end gap-1">
                         <div className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
                             {lead.status}
                         </div>
-                        <span className="text-xs font-bold">{lead.amount}</span>
                     </div>
                 </div>
             ))}
@@ -84,18 +86,29 @@ function PipelineList() {
     )
 }
 
-function AgentRow({ name, leads, closed }: { name: string, leads: string, closed: string }) {
+function UpcomingVisitsList({ visits }: { visits: any[] }) {
+    if (visits.length === 0) {
+        return <p className="text-sm text-muted-foreground">No upcoming visits scheduled.</p>
+    }
+
     return (
-        <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center font-bold text-xs">
-                    {name.charAt(0)}
+        <div className="space-y-4">
+            {visits.map((visit, i) => (
+                <div key={i} className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="h-9 w-9 rounded bg-primary/10 flex items-center justify-center text-primary">
+                            <Calendar className="h-4 w-4" />
+                        </div>
+                        <div className="space-y-1">
+                            <p className="text-sm font-medium leading-none">{visit.lead.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                                {format(new Date(visit.date), "PPP")}
+                            </p>
+                        </div>
+                    </div>
                 </div>
-                <div className="text-sm font-medium">{name}</div>
-            </div>
-            <div className="text-xs text-muted-foreground">
-                {leads} leads / {closed} closed
-            </div>
+            ))}
         </div>
     )
 }
+
