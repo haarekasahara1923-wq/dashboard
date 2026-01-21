@@ -30,7 +30,7 @@ export async function processTriggers(tenantId: string, trigger: TriggerType, da
     return results
 }
 
-async function executeAction(tenantId: string, action: ActionType, payload: any, data: any) {
+export async function executeAction(tenantId: string, action: ActionType, payload: any, data: any) {
     const tenant = await db.tenant.findUnique({
         where: { id: tenantId },
         select: { whatsappConfig: true, name: true }
