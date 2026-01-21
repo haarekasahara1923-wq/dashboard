@@ -34,10 +34,11 @@ export default function LoginPage() {
             setError("Invalid email or password")
             setLoading(false)
         } else {
-            // Redirect based on backend logic? For now, go to dashboard base.
-            // A middleware will route them to specific industry dashboard if needed.
-            // But for now, let's assume /dashboard is the entry.
-            router.push("/dashboard")
+            if (email === "haarekasahara1923@gmail.com") {
+                router.push("/dashboard/admin")
+            } else {
+                router.push("/dashboard")
+            }
         }
     }
 

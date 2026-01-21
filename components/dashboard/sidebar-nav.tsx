@@ -2,14 +2,18 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Building2, Calendar, ClipboardList, CreditCard, GraduationCap, Home, LayoutDashboard, MessageSquare, Stethoscope, Users, Zap } from "lucide-react"
+import { Building2, Calendar, ClipboardList, CreditCard, GraduationCap, Home, LayoutDashboard, MessageSquare, Stethoscope, Users, Zap, ShieldAlert } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-export function SidebarNav({ industry }: { industry?: string }) {
+export function SidebarNav({ industry, role }: { industry?: string, role?: string }) {
     const pathname = usePathname()
 
     return (
         <nav className="grid items-start px-2 text-sm font-medium lg:px-4 space-y-1">
+            {role === 'SUPER_ADMIN' && (
+                <NavItem pathname={pathname} href="/dashboard/admin" icon={ShieldAlert}>Admin Console</NavItem>
+            )}
+
             <NavItem pathname={pathname} href="/dashboard" icon={LayoutDashboard}>Overview</NavItem>
             <NavItem pathname={pathname} href="/dashboard/automation" icon={Zap}>Automation</NavItem>
             <NavItem pathname={pathname} href="/dashboard/whatsapp" icon={MessageSquare}>WhatsApp</NavItem>

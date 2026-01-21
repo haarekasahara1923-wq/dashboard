@@ -10,6 +10,8 @@ export async function Sidebar() {
     const tenantName = session?.user?.tenantName || "SaaSAuto"
     const industry = session?.user?.industry
 
+    const role = session?.user?.role
+
     return (
         <div className="hidden border-r bg-gray-100/40 md:block dark:bg-gray-800/40 w-[240px] lg:w-[280px] shrink-0 h-screen sticky top-0">
             <div className="flex flex-col gap-2 h-full">
@@ -24,7 +26,7 @@ export async function Sidebar() {
                     </Button>
                 </div>
                 <div className="flex-1 overflow-auto py-2">
-                    <SidebarNav industry={industry} />
+                    <SidebarNav industry={industry} role={role} />
                 </div>
                 <div className="mt-auto p-4">
                     <div className="rounded-lg border bg-gradient-to-br from-indigo-50 to-purple-50 p-4 shadow-sm dark:from-indigo-950/50 dark:to-purple-950/50">
