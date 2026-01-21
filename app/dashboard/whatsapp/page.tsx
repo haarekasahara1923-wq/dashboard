@@ -24,19 +24,24 @@ export default async function WhatsAppPage() {
                         WhatsApp Settings
                     </CardTitle>
                     <CardDescription>
-                        Enter your WhatsApp Business API details.
+                        Configuration priority: Database (below) {'>'} Environment Variables.
                     </CardDescription>
                 </CardHeader>
                 <form action={updateWhatsAppConfig}>
                     <CardContent className="space-y-4">
+                        {!config?.phoneNumber && process.env.WHATSAPP_PHONE_NUMBER && (
+                            <div className="bg-blue-50 p-4 rounded-md text-sm text-blue-700 mb-4 border border-blue-200">
+                                <strong>Environment Variable Detected:</strong> A default phone number is set in your environment variables.
+                                You can override it here.
+                            </div>
+                        )}
                         <div className="space-y-2">
                             <Label htmlFor="phoneNumber">Phone Number</Label>
                             <Input
                                 id="phoneNumber"
                                 name="phoneNumber"
-                                placeholder="+91 99999 99999"
+                                placeholder={process.env.WHATSAPP_PHONE_NUMBER || "+91 99999 99999"}
                                 defaultValue={config?.phoneNumber || ""}
-                                required
                             />
                             <p className="text-xs text-muted-foreground">Include country code without special characters (e.g., 919999999999)</p>
                         </div>
@@ -46,9 +51,12 @@ export default async function WhatsAppPage() {
                                 id="apiKey"
                                 name="apiKey"
                                 type="password"
-                                placeholder="WhatsApp Cloud API Key"
+                                placeholder={process.env.WHATSAPP_API_KEY ? "Set in Environment Variables" : "WhatsApp Cloud API Key"}
                                 defaultValue={config?.apiKey || ""}
                             />
+                            <p className="text-xs text-muted-foreground">
+                                {process.env.WHATSAPP_API_KEY ? "Defaults to WHATSAPP_API_KEY from .env if left blank." : "Required for sending messages."}
+                            </p>
                         </div>
                     </CardContent>
                     <CardFooter>

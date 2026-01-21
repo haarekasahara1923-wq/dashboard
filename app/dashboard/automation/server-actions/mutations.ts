@@ -72,8 +72,16 @@ export async function testRule(ruleId: string) {
             where: { id: session.user.tenantId },
             select: { whatsappConfig: true }
         })
-        if (!tenant?.whatsappConfig) {
-            return { success: false, message: "WhatsApp not configured" }
+
+        let hasConfig = false
+        if (tenant?.whatsappConfig && (tenant.whatsappConfig as any).phoneNumber) {
+            hasConfig = true
+        } else if (process.env.WHATSAPP_PHONE_NUMBER && process.env.WHATSAPP_API_KEY) {
+            hasConfig = true
+        }
+
+        if (!hasConfig) {
+            return { success: false, message: "WhatsApp not configured (checked DB and ENV)" }
         }
     }
 
