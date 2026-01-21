@@ -37,33 +37,21 @@ export async function executeAction(tenantId: string, action: ActionType, payloa
     })
 
     if (action === "SEND_WHATSAPP") {
-        // First check database config
-        let config = tenant?.whatsappConfig as any
+        const dbConfig = tenant?.whatsappConfig as any || {}
 
-        // If not in DB, check env variables
-        if (!config || !config.phoneNumber || !config.apiKey) {
-            const envPhone = process.env.WHATSAPP_PHONE_NUMBER
-            const envKey = process.env.WHATSAPP_API_KEY
-            const envId = process.env.WHATSAPP_PHONE_ID
+        // Priority: DB -> Env
+        const apiKey = (dbConfig.apiKey || process.env.WHATSAPP_API_KEY || "").trim()
+        const phoneNumber = (dbConfig.phoneNumber || process.env.WHATSAPP_PHONE_NUMBER || "").trim()
+        const phoneId = (dbConfig.phoneId || process.env.WHATSAPP_PHONE_ID || phoneNumber).trim()
 
-            if (envPhone && envKey) {
-                config = {
-                    phoneNumber: envPhone,
-                    apiKey: envKey,
-                    phoneId: envId // Optional: Business Phone ID usually needed for API
-                }
-            }
+        if (!apiKey) {
+            throw new Error("WhatsApp API Key is missing. Please configure it in Dashboard > WhatsApp or set WHATSAPP_API_KEY environment variable.")
+        }
+        if (!phoneId) {
+            throw new Error("WhatsApp Phone ID is missing. Please configure it in Dashboard > WhatsApp or set WHATSAPP_PHONE_ID environment variable.")
         }
 
-        if (!config || !config.apiKey) {
-            throw new Error("WhatsApp API Key not found (checked DB and ENV)")
-        }
-
-        // WhatsApp Cloud API typically requires a 'Phone Number ID', not just the display phone number.
-        // We will assume 'phoneNumber' field in config MIGHT be the ID, or we need a separate ID.
-        // For now, let's try to use the configured 'phoneNumber' as the Phone ID which is common in many setups,
-        // or prompt user to ensure it's the ID.
-        const phoneId = config.phoneId || config.phoneNumber
+        const config = { apiKey, phoneNumber, phoneId }
 
         const recipientPhone = data.phone || data.student?.phone || data.details?.phone || data.patient?.phone
 
@@ -71,11 +59,10 @@ export async function executeAction(tenantId: string, action: ActionType, payloa
             throw new Error("Target phone number not found in data")
         }
 
-        console.log(`Sending WhatsApp to ${recipientPhone} using Phone ID ${phoneId}`)
+        console.log(`Sending WhatsApp to ${recipientPhone} using Phone ID ${config.phoneId}`)
 
-        // Send actual request to WhatsApp Cloud API
         try {
-            const response = await fetch(`https://graph.facebook.com/v17.0/${phoneId}/messages`, {
+            const response = await fetch(`https://graph.facebook.com/v17.0/${config.phoneId}/messages`, {
                 method: "POST",
                 headers: {
                     "Authorization": `Bearer ${config.apiKey}`,
