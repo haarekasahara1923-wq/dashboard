@@ -9,7 +9,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { toggleRuleStatus, deleteRule } from "../server-actions/mutations"
+import { toggleRuleStatus, deleteRule, testRule } from "../server-actions/mutations"
 
 export function AutomationList({ rules }: { rules: any[] }) {
     if (rules.length === 0) {
@@ -63,6 +63,12 @@ function AutomationCard({ rule }: { rule: any }) {
                                     <Play className="mr-2 h-4 w-4" /> Resume
                                 </>
                             )}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={async () => {
+                            const result = await testRule(rule.id)
+                            alert(result.message)
+                        }}>
+                            <Play className="mr-2 h-4 w-4" /> Test Run
                         </DropdownMenuItem>
                         <DropdownMenuItem className="text-red-600" onClick={() => deleteRule(rule.id)}>
                             <Trash className="mr-2 h-4 w-4" /> Delete

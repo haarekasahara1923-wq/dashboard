@@ -4,17 +4,15 @@ import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
 import { TriggerType, ActionType } from "@prisma/client"
 
-async function getDevTenant() {
-    const tenant = await db.tenant.findFirst({
-        where: { name: "Demo Real Estate" }
-    })
-    if (tenant) return tenant
-    return await db.tenant.create({
-        data: { name: "Demo Real Estate", industry: "REAL_ESTATE" }
-    })
-}
+
+
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 
 export async function toggleRuleStatus(ruleId: string, currentStatus: boolean) {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.tenantId) throw new Error("Unauthorized")
+
     await db.automationRule.update({
         where: { id: ruleId },
         data: { isActive: !currentStatus }
@@ -23,6 +21,9 @@ export async function toggleRuleStatus(ruleId: string, currentStatus: boolean) {
 }
 
 export async function deleteRule(ruleId: string) {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.tenantId) throw new Error("Unauthorized")
+
     await db.automationRule.delete({
         where: { id: ruleId }
     })
@@ -30,7 +31,8 @@ export async function deleteRule(ruleId: string) {
 }
 
 export async function createRule(formData: FormData) {
-    const tenant = await getDevTenant()
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.tenantId) throw new Error("Unauthorized")
 
     const name = formData.get("name") as string
     const trigger = formData.get("trigger") as TriggerType
@@ -43,10 +45,38 @@ export async function createRule(formData: FormData) {
             name,
             trigger,
             action,
-            tenantId: tenant.id,
+            tenantId: session.user.tenantId,
             isActive: true
         }
     })
 
     revalidatePath("/dashboard/automation")
 }
+
+export async function testRule(ruleId: string) {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.tenantId) throw new Error("Unauthorized")
+
+    const rule = await db.automationRule.findUnique({
+        where: { id: ruleId }
+    })
+
+    if (!rule) throw new Error("Rule not found")
+
+    // In a real app, this would trigger the actual logic.
+    // For now, we simulate success.
+
+    // Check if WhatsApp config exists if action is SEND_WHATSAPP
+    if (rule.action === "SEND_WHATSAPP") {
+        const tenant = await db.tenant.findUnique({
+            where: { id: session.user.tenantId },
+            select: { whatsappConfig: true }
+        })
+        if (!tenant?.whatsappConfig) {
+            return { success: false, message: "WhatsApp not configured" }
+        }
+    }
+
+    return { success: true, message: `Executed ${rule.action} for ${rule.trigger}` }
+}
+
