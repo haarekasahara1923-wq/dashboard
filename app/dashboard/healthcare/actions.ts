@@ -1,18 +1,12 @@
-
 import { db } from "@/lib/db"
-
-async function getDevTenant() {
-    const tenant = await db.tenant.findFirst({
-        where: { name: "Demo Healthcare" }
-    })
-    if (tenant) return tenant
-    return await db.tenant.create({
-        data: { name: "Demo Healthcare", industry: "HEALTHCARE" }
-    })
-}
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 
 export async function getHealthcareStats() {
-    const tenant = await getDevTenant()
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.tenantId) return { appointmentsToday: 0, pendingPatients: 0, activeDoctors: 0 }
+
+    const tenantId = session.user.tenantId
 
     const startOfDay = new Date()
     startOfDay.setHours(0, 0, 0, 0)
@@ -21,7 +15,7 @@ export async function getHealthcareStats() {
 
     const appointmentsToday = await db.appointment.count({
         where: {
-            tenantId: tenant.id,
+            tenantId,
             date: {
                 gte: startOfDay,
                 lte: endOfDay
@@ -31,7 +25,7 @@ export async function getHealthcareStats() {
 
     const pendingPatients = await db.appointment.count({
         where: {
-            tenantId: tenant.id,
+            tenantId,
             date: {
                 gte: startOfDay,
                 lte: endOfDay
@@ -41,7 +35,7 @@ export async function getHealthcareStats() {
     })
 
     const activeDoctors = await db.doctor.count({
-        where: { tenantId: tenant.id }
+        where: { tenantId }
     })
 
     return {
@@ -52,13 +46,15 @@ export async function getHealthcareStats() {
 }
 
 export async function getAppointments() {
-    const tenant = await getDevTenant()
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.tenantId) return []
+
     const startOfDay = new Date()
     startOfDay.setHours(0, 0, 0, 0)
 
     return await db.appointment.findMany({
         where: {
-            tenantId: tenant.id,
+            tenantId: session.user.tenantId,
             date: {
                 gte: startOfDay
             }
@@ -72,8 +68,21 @@ export async function getAppointments() {
 }
 
 export async function getDoctors() {
-    const tenant = await getDevTenant()
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.tenantId) return []
+
     return await db.doctor.findMany({
-        where: { tenantId: tenant.id }
+        where: { tenantId: session.user.tenantId }
     })
 }
+
+export async function getPatients() {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.tenantId) return []
+
+    return await db.patient.findMany({
+        where: { tenantId: session.user.tenantId },
+        orderBy: { id: 'desc' }
+    })
+}
+
