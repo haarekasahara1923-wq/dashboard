@@ -39,10 +39,17 @@ export async function createSubscriptionOrder(planType: "MONTHLY" | "YEARLY") {
             keyId: process.env.RAZORPAY_KEY_ID
         }
     } catch (error: any) {
-        console.error("Razorpay Order Creation Error:", error)
-        // Return a readable error message
+        console.error("Razorpay Order Creation Error (Full):", JSON.stringify(error, null, 2))
+
+        let errorMessage = error.message || "Failed to create subscription order with payment provider.";
+
+        // Extract inner error description if available (common in Razorpay errors)
+        if (error.error && error.error.description) {
+            errorMessage = error.error.description;
+        }
+
         return {
-            error: error.message || "Failed to create subscription order with payment provider."
+            error: errorMessage
         }
     }
 }
