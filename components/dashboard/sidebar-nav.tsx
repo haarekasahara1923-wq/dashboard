@@ -10,14 +10,16 @@ export function SidebarNav({ industry, role }: { industry?: string, role?: strin
 
     return (
         <nav className="grid items-start px-2 text-sm font-medium lg:px-4 space-y-1">
-            {role === 'SUPER_ADMIN' && (
+            {role === 'SUPER_ADMIN' ? (
                 <NavItem pathname={pathname} href="/dashboard/admin" icon={ShieldAlert}>Admin Console</NavItem>
+            ) : (
+                <>
+                    <NavItem pathname={pathname} href="/dashboard" icon={LayoutDashboard}>Overview</NavItem>
+                    <NavItem pathname={pathname} href="/dashboard/automation" icon={Zap}>Automation</NavItem>
+                    <NavItem pathname={pathname} href="/dashboard/whatsapp" icon={MessageSquare}>WhatsApp</NavItem>
+                    <NavItem pathname={pathname} href="/dashboard/billing" icon={CreditCard}>Billing & Plans</NavItem>
+                </>
             )}
-
-            <NavItem pathname={pathname} href="/dashboard" icon={LayoutDashboard}>Overview</NavItem>
-            <NavItem pathname={pathname} href="/dashboard/automation" icon={Zap}>Automation</NavItem>
-            <NavItem pathname={pathname} href="/dashboard/whatsapp" icon={MessageSquare}>WhatsApp</NavItem>
-            <NavItem pathname={pathname} href="/dashboard/billing" icon={CreditCard}>Billing & Plans</NavItem>
 
             {industry === "EDUCATION" && (
                 <>
