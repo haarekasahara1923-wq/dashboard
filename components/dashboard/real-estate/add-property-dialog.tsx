@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Plus } from "lucide-react"
-import { createProperty } from "../../server-actions/mutations"
+import { createProperty } from "@/app/dashboard/real-estate/server-actions/mutations"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 

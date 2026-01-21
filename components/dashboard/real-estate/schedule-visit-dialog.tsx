@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { CalendarPlus } from "lucide-react"
-import { scheduleSiteVisit } from "../../server-actions/mutations"
+import { scheduleSiteVisit } from "@/app/dashboard/real-estate/server-actions/mutations"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 

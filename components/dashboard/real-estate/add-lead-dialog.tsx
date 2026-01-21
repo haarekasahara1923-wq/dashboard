@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { UserPlus } from "lucide-react"
-import { createLead } from "../../server-actions/mutations"
+import { createLead } from "@/app/dashboard/real-estate/server-actions/mutations"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 
