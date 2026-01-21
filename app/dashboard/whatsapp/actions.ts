@@ -14,7 +14,7 @@ export async function getWhatsAppConfig() {
         select: { whatsappConfig: true }
     })
 
-    return tenant?.whatsappConfig as { phoneNumber?: string, apiKey?: string } | null
+    return tenant?.whatsappConfig as { phoneNumber?: string, apiKey?: string, phoneId?: string } | null
 }
 
 export async function updateWhatsAppConfig(formData: FormData) {
@@ -22,6 +22,7 @@ export async function updateWhatsAppConfig(formData: FormData) {
     if (!session?.user?.tenantId) throw new Error("Unauthorized")
 
     const phoneNumber = formData.get("phoneNumber") as string
+    const phoneId = formData.get("phoneId") as string
     const apiKey = formData.get("apiKey") as string
 
     await db.tenant.update({
@@ -29,6 +30,7 @@ export async function updateWhatsAppConfig(formData: FormData) {
         data: {
             whatsappConfig: {
                 phoneNumber,
+                phoneId,
                 apiKey
             }
         }

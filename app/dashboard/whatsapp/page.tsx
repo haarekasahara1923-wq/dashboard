@@ -36,17 +36,29 @@ export default async function WhatsAppPage() {
                             </div>
                         )}
                         <div className="space-y-2">
-                            <Label htmlFor="phoneNumber">Phone Number</Label>
+                            <Label htmlFor="phoneId">Phone ID (Required for API)</Label>
+                            <Input
+                                id="phoneId"
+                                name="phoneId"
+                                placeholder={process.env.WHATSAPP_PHONE_ID || "e.g., 105954558954423"}
+                                defaultValue={config?.phoneId || ""}
+                            />
+                            <p className="text-xs text-muted-foreground">
+                                The unique ID for your WhatsApp phone number (found in Meta Developer Console).
+                            </p>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="phoneNumber">Phone Number (Display)</Label>
                             <Input
                                 id="phoneNumber"
                                 name="phoneNumber"
                                 placeholder={process.env.WHATSAPP_PHONE_NUMBER || "+91 99999 99999"}
                                 defaultValue={config?.phoneNumber || ""}
                             />
-                            <p className="text-xs text-muted-foreground">Include country code without special characters (e.g., 919999999999)</p>
+                            <p className="text-xs text-muted-foreground">The number that will send the message.</p>
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="apiKey">API Key (Optional)</Label>
+                            <Label htmlFor="apiKey">API Key</Label>
                             <Input
                                 id="apiKey"
                                 name="apiKey"

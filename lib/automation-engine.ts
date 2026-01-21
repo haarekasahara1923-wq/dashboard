@@ -44,27 +44,70 @@ async function executeAction(tenantId: string, action: ActionType, payload: any,
         if (!config || !config.phoneNumber || !config.apiKey) {
             const envPhone = process.env.WHATSAPP_PHONE_NUMBER
             const envKey = process.env.WHATSAPP_API_KEY
+            const envId = process.env.WHATSAPP_PHONE_ID
 
             if (envPhone && envKey) {
-                config = { phoneNumber: envPhone, apiKey: envKey }
+                config = {
+                    phoneNumber: envPhone,
+                    apiKey: envKey,
+                    phoneId: envId // Optional: Business Phone ID usually needed for API
+                }
             }
         }
 
-        if (!config || !config.phoneNumber) {
-            throw new Error("WhatsApp configuration not found (checked DB and ENV)")
+        if (!config || !config.apiKey) {
+            throw new Error("WhatsApp API Key not found (checked DB and ENV)")
         }
 
-        // Mock sending WhatsApp message
-        // In a real implementation, this would call the WhatsApp Cloud API
-        const phone = data.phone || data.student?.phone || data.details?.phone
+        // WhatsApp Cloud API typically requires a 'Phone Number ID', not just the display phone number.
+        // We will assume 'phoneNumber' field in config MIGHT be the ID, or we need a separate ID.
+        // For now, let's try to use the configured 'phoneNumber' as the Phone ID which is common in many setups,
+        // or prompt user to ensure it's the ID.
+        const phoneId = config.phoneId || config.phoneNumber
 
-        if (!phone) {
+        const recipientPhone = data.phone || data.student?.phone || data.details?.phone || data.patient?.phone
+
+        if (!recipientPhone) {
             throw new Error("Target phone number not found in data")
         }
 
-        console.log(`[MOCK] Sending WhatsApp to ${phone} from ${config.phoneNumber}: "Hello from ${tenant?.name}, thanks for your interest!"`)
+        console.log(`Sending WhatsApp to ${recipientPhone} using Phone ID ${phoneId}`)
 
-        return { message: "WhatsApp message sent (mock)" }
+        // Send actual request to WhatsApp Cloud API
+        try {
+            const response = await fetch(`https://graph.facebook.com/v17.0/${phoneId}/messages`, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${config.apiKey}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    messaging_product: "whatsapp",
+                    to: recipientPhone,
+                    type: "template",
+                    template: {
+                        name: "hello_world", // Using standard sandbox template for testing
+                        language: {
+                            code: "en_US"
+                        }
+                    }
+                }),
+            })
+
+            const responseData = await response.json()
+
+            if (!response.ok) {
+                console.error("WhatsApp API Error:", responseData)
+                throw new Error(`WhatsApp API Error: ${JSON.stringify(responseData)}`)
+            }
+
+            console.log("WhatsApp Sent Successfully:", responseData)
+            return { message: "WhatsApp message sent successfully", apiResponse: responseData }
+
+        } catch (error) {
+            console.error("Failed to send WhatsApp:", error)
+            throw error
+        }
     }
 
     if (action === "NOTIFY_ADMIN") {
