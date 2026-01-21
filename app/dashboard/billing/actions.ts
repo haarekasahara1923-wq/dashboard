@@ -24,7 +24,7 @@ export async function createSubscriptionOrder(planType: "MONTHLY" | "YEARLY") {
         const order = await razorpay.orders.create({
             amount: amount,
             currency: "INR",
-            receipt: `receipt_${session.user.tenantId}_${Date.now()}`,
+            receipt: `rcpt_${session.user.tenantId.slice(-4)}_${Date.now().toString().slice(-8)}`,
             notes: {
                 tenantId: session.user.tenantId,
                 planType: planType
