@@ -8,31 +8,42 @@ import crypto from "crypto"
 import { revalidatePath } from "next/cache"
 
 export async function createSubscriptionOrder(planType: "MONTHLY" | "YEARLY") {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.tenantId) throw new Error("Unauthorized")
-
-    if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
-        console.error("Razorpay keys are missing in environment variables")
-        throw new Error("Payment configuration missing with error: Razorpay keys not found")
-    }
-
-    const amount = planType === "MONTHLY" ? 210000 : 1680000 // Amount in paise (2100 * 100, 16800 * 100)
-
-    const order = await razorpay.orders.create({
-        amount: amount,
-        currency: "INR",
-        receipt: `receipt_${session.user.tenantId}_${Date.now()}`,
-        notes: {
-            tenantId: session.user.tenantId,
-            planType: planType
+    try {
+        const session = await getServerSession(authOptions)
+        if (!session?.user?.tenantId) {
+            return { error: "Unauthorized: Please log in again." }
         }
-    })
 
-    return {
-        orderId: order.id,
-        amount: order.amount,
-        currency: order.currency,
-        keyId: process.env.RAZORPAY_KEY_ID
+        if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+            console.error("Razorpay keys are missing in environment variables")
+            return { error: "Server Configuration Error: Razorpay keys are missing." }
+        }
+
+        const amount = planType === "MONTHLY" ? 210000 : 1680000 // Amount in paise
+
+        const order = await razorpay.orders.create({
+            amount: amount,
+            currency: "INR",
+            receipt: `receipt_${session.user.tenantId}_${Date.now()}`,
+            notes: {
+                tenantId: session.user.tenantId,
+                planType: planType
+            }
+        })
+
+        return {
+            success: true,
+            orderId: order.id,
+            amount: order.amount,
+            currency: order.currency,
+            keyId: process.env.RAZORPAY_KEY_ID
+        }
+    } catch (error: any) {
+        console.error("Razorpay Order Creation Error:", error)
+        // Return a readable error message
+        return {
+            error: error.message || "Failed to create subscription order with payment provider."
+        }
     }
 }
 

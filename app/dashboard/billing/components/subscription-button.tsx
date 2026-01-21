@@ -18,8 +18,29 @@ export function SubscriptionButton({ plan, currentPlan }: { plan: "MONTHLY" | "Y
     async function handleSubscribe() {
         setLoading(true)
         try {
+            // Check if Razorpay is loaded
+            if (!window.Razorpay) {
+                alert("Payment gateway failed to load. Please refresh the page.")
+                setLoading(false)
+                return
+            }
+
             // 1. Create Order
-            const { orderId, amount, currency, keyId } = await createSubscriptionOrder(plan)
+            const result = await createSubscriptionOrder(plan)
+
+            if (result.error || !result.success) {
+                alert(`Order Creation Failed: ${result.error}`)
+                setLoading(false)
+                return
+            }
+
+            const { orderId, amount, currency, keyId } = result
+
+            if (!keyId) {
+                alert("Payment Error: Invalid Key ID received from server.")
+                setLoading(false)
+                return
+            }
 
             // 2. Initialize Razorpay options
             const options = {
@@ -54,11 +75,14 @@ export function SubscriptionButton({ plan, currentPlan }: { plan: "MONTHLY" | "Y
             };
 
             const rzp = new window.Razorpay(options);
+            rzp.on('payment.failed', function (response: any) {
+                alert(`Payment Failed: ${response.error.description}`);
+            });
             rzp.open();
 
-        } catch (err) {
+        } catch (err: any) {
             console.error("Subscription error:", err)
-            alert("Failed to initiate subscription")
+            alert(`Failed to initiate subscription: ${err.message || "Unknown error"}`)
         } finally {
             setLoading(false)
         }
