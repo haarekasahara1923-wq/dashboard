@@ -11,6 +11,11 @@ export async function createSubscriptionOrder(planType: "MONTHLY" | "YEARLY") {
     const session = await getServerSession(authOptions)
     if (!session?.user?.tenantId) throw new Error("Unauthorized")
 
+    if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+        console.error("Razorpay keys are missing in environment variables")
+        throw new Error("Payment configuration missing with error: Razorpay keys not found")
+    }
+
     const amount = planType === "MONTHLY" ? 210000 : 1680000 // Amount in paise (2100 * 100, 16800 * 100)
 
     const order = await razorpay.orders.create({
