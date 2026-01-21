@@ -36,7 +36,7 @@ export async function getAdminData() {
         subscriptionType: t.subscriptionPlan,
         subscriptionStatus: t.subscriptionStatus,
         revenue: t.subscriptionPlan === "PRO" ? (t.subscriptionStatus === "ACTIVE" ? "Paid" : "Pending") : "Free",
-        joinedDate: t.createdAt
+        joinedDate: t.createdAt.toISOString()
     }))
 }
 
