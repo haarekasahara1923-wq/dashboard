@@ -1,32 +1,28 @@
-
 import { db } from "@/lib/db"
-
-async function getDevTenant() {
-    const tenant = await db.tenant.findFirst({
-        where: { name: "Demo Education" }
-    })
-    if (tenant) return tenant
-    return await db.tenant.create({
-        data: { name: "Demo Education", industry: "EDUCATION" }
-    })
-}
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 
 export async function getEducationStats() {
-    const tenant = await getDevTenant()
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.tenantId) return { totalStudents: 0, totalEnquiries: 0, feeCollected: 0, pendingDues: 0 }
 
-    const totalStudents = await db.student.count({ where: { tenantId: tenant.id } })
+    const tenantId = session.user.tenantId
 
+    const totalStudents = await db.student.count({ where: { tenantId } })
+
+    // Assuming enquiries are just students for now or a separate status? 
+    // Just reusing existing logic but filtered by tenant
     const totalEnquiries = await db.student.count({
-        where: { tenantId: tenant.id }
+        where: { tenantId }
     })
 
     const feeCollected = await db.fee.aggregate({
-        where: { tenantId: tenant.id, status: "PAID" },
+        where: { tenantId, status: "PAID" },
         _sum: { amount: true }
     })
 
     const pendingDues = await db.fee.aggregate({
-        where: { tenantId: tenant.id, status: { in: ["PENDING", "OVERDUE"] } },
+        where: { tenantId, status: { in: ["PENDING", "OVERDUE"] } },
         _sum: { amount: true }
     })
 
@@ -39,10 +35,12 @@ export async function getEducationStats() {
 }
 
 export async function getStudents() {
-    const tenant = await getDevTenant()
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.tenantId) return []
+
     return await db.student.findMany({
-        where: { tenantId: tenant.id },
+        where: { tenantId: session.user.tenantId },
         orderBy: { id: 'desc' },
-        take: 10
+        take: 20
     })
 }

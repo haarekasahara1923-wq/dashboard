@@ -2,27 +2,18 @@
 
 import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
-import { sendWhatsAppMessage } from "@/lib/whatsapp/client"
+import { processTriggers } from "@/lib/automation-engine"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 
-async function getDevTenant() {
-    const tenant = await db.tenant.findFirst({
-        where: { name: "Demo Education" }
-    })
-    if (tenant) return tenant
-    return await db.tenant.create({
-        data: { name: "Demo Education", industry: "EDUCATION" }
-    })
-}
-
-export async function registerStudent(formData: FormData) {
-    const tenant = await getDevTenant()
+export async function createStudent(formData: FormData) {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.tenantId) throw new Error("Unauthorized")
 
     const firstName = formData.get("firstName") as string
     const lastName = formData.get("lastName") as string
     const email = formData.get("email") as string
     const phone = formData.get("phone") as string
-
-    if (!firstName || !lastName || !phone) throw new Error("Missing required fields")
 
     const student = await db.student.create({
         data: {
@@ -30,55 +21,57 @@ export async function registerStudent(formData: FormData) {
             lastName,
             email,
             phone,
-            tenantId: tenant.id
+            tenantId: session.user.tenantId
         }
     })
 
-    const rules = await db.automationRule.findMany({
-        where: { tenantId: tenant.id, isActive: true, trigger: "ADMISSION_ENQUIRY" }
-    })
-
-    for (const rule of rules) {
-        if (rule.action === "SEND_WHATSAPP") {
-            await sendWhatsAppMessage(student.phone || "", "hello_world")
-        }
-    }
-
-    revalidatePath("/dashboard/education")
+    revalidatePath("/dashboard/education/students")
+    return { success: true }
 }
 
-export async function createFeeRecord(formData: FormData) {
-    const tenant = await getDevTenant()
+export async function createAdmission(formData: FormData) {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.tenantId) throw new Error("Unauthorized")
+
+    const studentId = formData.get("studentId") as string
+    const status = formData.get("status") as string
+
+    const admission = await db.admission.create({
+        data: {
+            studentId,
+            status,
+            tenantId: session.user.tenantId
+        }
+    })
+
+    const student = await db.student.findUnique({ where: { id: studentId } })
+    await processTriggers(session.user.tenantId, "ADMISSION_ENQUIRY", { admission, student })
+
+    revalidatePath("/dashboard/education/admissions")
+    return { success: true }
+}
+
+export async function createFee(formData: FormData) {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.tenantId) throw new Error("Unauthorized")
+
     const studentId = formData.get("studentId") as string
     const amount = parseFloat(formData.get("amount") as string)
     const dueDate = new Date(formData.get("dueDate") as string)
 
-    if (!studentId || !amount || !dueDate) throw new Error("Missing fields")
-
     const fee = await db.fee.create({
         data: {
+            studentId,
             amount,
             dueDate,
             status: "PENDING",
-            studentId,
-            tenantId: tenant.id
-        },
-        include: {
-            student: true
+            tenantId: session.user.tenantId
         }
     })
 
-    const rules = await db.automationRule.findMany({
-        where: { tenantId: tenant.id, isActive: true, trigger: "FEE_DUE" }
-    })
+    const student = await db.student.findUnique({ where: { id: studentId } })
+    await processTriggers(session.user.tenantId, "FEE_DUE", { fee, student })
 
-    for (const rule of rules) {
-        if (rule.action === "SEND_WHATSAPP") {
-            if (fee.student.phone) {
-                await sendWhatsAppMessage(fee.student.phone, "hello_world")
-            }
-        }
-    }
-
-    revalidatePath("/dashboard/education")
+    revalidatePath("/dashboard/education/fees")
+    return { success: true }
 }
