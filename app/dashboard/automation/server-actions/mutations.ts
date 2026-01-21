@@ -95,3 +95,53 @@ export async function testRule(ruleId: string) {
     }
 }
 
+export async function getRuleTestUrl(ruleId: string) {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.tenantId) throw new Error("Unauthorized")
+
+    const rule = await db.automationRule.findUnique({
+        where: { id: ruleId }
+    })
+
+    if (!rule) throw new Error("Rule not found")
+
+    // DATA PREPARATION FOR TEST (Simulate data)
+    let testData: any = {}
+    let targetPhone = "919999999999" // Default fallback
+    let messageText = "This is a test message from your automation rule."
+
+    // Attempt to fetch a real record for context
+    if (rule.trigger === "LEAD_CREATED") {
+        const lead = await db.lead.findFirst({ where: { tenantId: session.user.tenantId }, orderBy: { id: 'desc' } })
+        if (lead) {
+            testData = lead
+            targetPhone = lead.phone
+            messageText = `Hi ${lead.name}, thanks for your interest! We have received your inquiry. (Lead Created)`
+        } else {
+            messageText = `Hi [Name], thanks for your interest! We have received your inquiry. (Lead Created)`
+        }
+    } else if (rule.trigger === "ADMISSION_ENQUIRY") {
+        const student = await db.student.findFirst({ where: { tenantId: session.user.tenantId }, orderBy: { id: 'desc' } })
+        if (student) {
+            testData = { student }
+            targetPhone = student.phone || targetPhone
+            messageText = `Hello ${student.firstName}, thank you for your admission enquiry. We will contact you soon.`
+        }
+    } else if (rule.trigger === "APPOINTMENT_BOOKED") {
+        const appointment = await db.appointment.findFirst({ where: { tenantId: session.user.tenantId }, include: { patient: true }, orderBy: { date: 'desc' } })
+        if (appointment) {
+            testData = { appointment, patient: appointment.patient }
+            targetPhone = appointment.patient.phone
+            messageText = `Dear ${appointment.patient.name}, your appointment is confirmed for ${appointment.date.toDateString()}.`
+        }
+    }
+
+    // Clean phone number
+    const cleanPhone = targetPhone.replace(/[^0-9]/g, "")
+
+    // Construct WhatsApp Web URL
+    const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(messageText)}`
+
+    return { success: true, url }
+}
+

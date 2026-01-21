@@ -12,7 +12,7 @@ export default function DisclaimerPage() {
             <h1 className="text-3xl font-bold mb-6">Disclaimer</h1>
             <div className="prose max-w-none text-muted-foreground">
                 <p className="mb-4">
-                    The information provided by DAZO ("we," "us," or "our") on our website and software platform is for general informational purposes only.
+                    The information provided by DAZO (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) on our website and software platform is for general informational purposes only.
                 </p>
                 <p className="mb-4">
                     All information on the site is provided in good faith, however, we make no representation or warranty of any kind, express or implied, regarding the accuracy, adequacy, validity, reliability, availability, or completeness of any information on the site.

@@ -1,7 +1,7 @@
 'use client'
 
 import { Card } from "@/components/ui/card"
-import { Zap, MoreVertical, Play, Pause, Trash } from "lucide-react"
+import { Zap, MoreVertical, Play, Pause, Trash, MessageSquare } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
     DropdownMenu,
@@ -9,7 +9,8 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { toggleRuleStatus, deleteRule, testRule } from "../server-actions/mutations"
+import { toggleRuleStatus, deleteRule, testRule, getRuleTestUrl } from "../server-actions/mutations"
+
 
 export function AutomationList({ rules }: { rules: any[] }) {
     if (rules.length === 0) {
@@ -68,7 +69,21 @@ function AutomationCard({ rule }: { rule: any }) {
                             const result = await testRule(rule.id)
                             alert(result.message)
                         }}>
-                            <Play className="mr-2 h-4 w-4" /> Test Run
+                            <Play className="mr-2 h-4 w-4" /> Test API Run
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={async () => {
+                            try {
+                                const result = await getRuleTestUrl(rule.id)
+                                if (result.success && result.url) {
+                                    window.open(result.url, '_blank')
+                                } else {
+                                    alert("Failed to generate WhatsApp Web URL")
+                                }
+                            } catch (e: any) {
+                                alert(e.message)
+                            }
+                        }}>
+                            <MessageSquare className="mr-2 h-4 w-4" /> Run via WhatsApp Web
                         </DropdownMenuItem>
                         <DropdownMenuItem className="text-red-600" onClick={() => deleteRule(rule.id)}>
                             <Trash className="mr-2 h-4 w-4" /> Delete

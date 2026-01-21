@@ -14,7 +14,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Plus } from "lucide-react"
-import { registerStudent } from "../server-actions/mutations"
+import { createStudent } from "../server-actions/mutations"
 
 export function AddStudentDialog() {
     const [open, setOpen] = useState(false)
@@ -25,7 +25,7 @@ export function AddStudentDialog() {
         setLoading(true)
 
         const formData = new FormData(event.currentTarget)
-        await registerStudent(formData)
+        await createStudent(formData)
 
         setLoading(false)
         setOpen(false)

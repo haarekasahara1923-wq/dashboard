@@ -1,6 +1,7 @@
 import { db } from "@/lib/db"
 import { TriggerType, ActionType } from "@prisma/client"
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function processTriggers(tenantId: string, trigger: TriggerType, data: any) {
     console.log(`Processing triggers for tenant ${tenantId}, trigger ${trigger}`)
 
@@ -30,6 +31,7 @@ export async function processTriggers(tenantId: string, trigger: TriggerType, da
     return results
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function executeAction(tenantId: string, action: ActionType, payload: any, data: any) {
     const tenant = await db.tenant.findUnique({
         where: { id: tenantId },
@@ -37,10 +39,11 @@ export async function executeAction(tenantId: string, action: ActionType, payloa
     })
 
     if (action === "SEND_WHATSAPP") {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const dbConfig = tenant?.whatsappConfig as any || {}
 
         // Priority: DB -> Env
-        const apiKey = (dbConfig.apiKey || process.env.WHATSAPP_API_KEY || "").trim()
+        const apiKey = (dbConfig.apiKey || process.env.WHATSAPP_API_KEY || process.env.WHATSAPP_API_TOKEN || "").trim()
         const phoneNumber = (dbConfig.phoneNumber || process.env.WHATSAPP_PHONE_NUMBER || "").trim()
         const phoneId = (dbConfig.phoneId || process.env.WHATSAPP_PHONE_ID || phoneNumber).trim()
 

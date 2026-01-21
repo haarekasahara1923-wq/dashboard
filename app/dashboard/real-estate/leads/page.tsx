@@ -1,6 +1,6 @@
 import { AddLeadDialog } from "@/components/dashboard/real-estate/add-lead-dialog"
 import { getLeads } from "../actions"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 
 export default async function LeadsPage() {
@@ -32,9 +32,7 @@ export default async function LeadsPage() {
                             </CardHeader>
                             <CardContent>
                                 <div className="text-2xl font-bold">{lead.phone}</div>
-                                <p className="text-xs text-muted-foreground">
-                                    Added {new Date(lead.createdAt || new Date()).toLocaleDateString()}
-                                </p>
+
                             </CardContent>
                         </Card>
                     ))}

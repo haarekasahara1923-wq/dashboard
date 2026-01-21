@@ -70,6 +70,7 @@ function KpiCard({ title, value, icon: Icon, trend }: { title: string, value: st
     )
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function ScheduleList({ appointments }: { appointments: any[] }) {
     if (appointments.length === 0) {
         return <p className="text-sm text-muted-foreground">No appointments scheduled for today.</p>

@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Check, Building2, GraduationCap, Stethoscope, Zap, Shield, BarChart3 } from "lucide-react"
+import { ArrowRight, Check, Building2, GraduationCap, Stethoscope, Zap } from "lucide-react"
 
 export default function LandingPage() {
   return (

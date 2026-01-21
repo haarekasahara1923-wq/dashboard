@@ -19,12 +19,13 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { CalendarIcon, Clock } from "lucide-react"
+import { CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { scheduleSiteVisit } from "../server-actions/mutations"
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function ScheduleVisitDialog({ leads }: { leads: any[] }) {
     const [open, setOpen] = useState(false)
     const [date, setDate] = useState<Date>()
@@ -34,7 +35,10 @@ export function ScheduleVisitDialog({ leads }: { leads: any[] }) {
     async function handleSchedule() {
         if (!selectedLeadId || !date) return
         setLoading(true)
-        await scheduleSiteVisit(selectedLeadId, date)
+        const formData = new FormData()
+        formData.append("leadId", selectedLeadId)
+        formData.append("date", date.toISOString())
+        await scheduleSiteVisit(formData)
         setLoading(false)
         setOpen(false)
         setDate(undefined)

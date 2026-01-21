@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Users, Home, Calendar, IndianRupee } from "lucide-react"
+import { Users, Home, Calendar } from "lucide-react"
 import { getRealEstateStats, getLeads, getUpcomingVisits } from "./actions"
 import { AddLeadDialog } from "./components/add-lead-dialog"
 import { ScheduleVisitDialog } from "./components/schedule-visit-dialog"
@@ -65,6 +65,7 @@ function KpiCard({ title, value, icon: Icon, trend }: { title: string, value: st
     )
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function PipelineList({ leads }: { leads: any[] }) {
     return (
         <div className="space-y-4">
@@ -86,6 +87,7 @@ function PipelineList({ leads }: { leads: any[] }) {
     )
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function UpcomingVisitsList({ visits }: { visits: any[] }) {
     if (visits.length === 0) {
         return <p className="text-sm text-muted-foreground">No upcoming visits scheduled.</p>

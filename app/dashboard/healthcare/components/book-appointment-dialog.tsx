@@ -26,7 +26,7 @@ import { CalendarIcon, Plus } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { bookAppointment } from "../server-actions/mutations"
+import { createAppointment } from "../server-actions/mutations"
 
 export function BookAppointmentDialog({ doctors }: { doctors: any[] }) {
     const [open, setOpen] = useState(false)
@@ -48,7 +48,7 @@ export function BookAppointmentDialog({ doctors }: { doctors: any[] }) {
 
         formData.append("date", dateTime.toISOString())
 
-        await bookAppointment(formData)
+        await createAppointment(formData)
         setLoading(false)
         setOpen(false)
     }
