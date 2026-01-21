@@ -1,11 +1,14 @@
 import Link from "next/link"
 import { MessageSquare, Bell } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { getTenantName } from "@/app/actions"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 import { SidebarNav } from "./sidebar-nav"
 
 export async function Sidebar() {
-    const tenantName = await getTenantName()
+    const session = await getServerSession(authOptions)
+    const tenantName = session?.user?.tenantName || "SaaSAuto"
+    const industry = session?.user?.industry
 
     return (
         <div className="hidden border-r bg-gray-100/40 md:block dark:bg-gray-800/40 w-[240px] lg:w-[280px] shrink-0 h-screen sticky top-0">
@@ -21,7 +24,7 @@ export async function Sidebar() {
                     </Button>
                 </div>
                 <div className="flex-1 overflow-auto py-2">
-                    <SidebarNav />
+                    <SidebarNav industry={industry} />
                 </div>
                 <div className="mt-auto p-4">
                     {/* Bottom content if any */}

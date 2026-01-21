@@ -6,6 +6,7 @@ declare module "next-auth" {
             id: string
             tenantId: string
             industry: string
+            tenantName: string
             role: string
         } & DefaultSession["user"]
     }
@@ -13,6 +14,7 @@ declare module "next-auth" {
     interface User {
         tenantId: string
         industry: string
+        tenantName: string
         role: string
     }
 }

@@ -35,6 +35,7 @@ export const authOptions: AuthOptions = {
                     email: user.email,
                     tenantId: user.tenantId,
                     industry: user.tenant.industry,
+                    tenantName: user.tenant.name,
                     role: user.role
                 }
             }
@@ -48,6 +49,7 @@ export const authOptions: AuthOptions = {
             if (user) {
                 token.tenantId = user.tenantId
                 token.industry = user.industry
+                token.tenantName = user.tenantName
                 token.role = user.role
             }
             return token
@@ -56,6 +58,7 @@ export const authOptions: AuthOptions = {
             if (session.user) {
                 session.user.tenantId = token.tenantId as string
                 session.user.industry = token.industry as string
+                session.user.tenantName = token.tenantName as string
                 session.user.role = token.role as string
             }
             return session

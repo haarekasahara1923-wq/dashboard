@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation"
 import { Building2, Calendar, ClipboardList, CreditCard, GraduationCap, Home, LayoutDashboard, MessageSquare, Stethoscope, Users, Zap } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-export function SidebarNav() {
+export function SidebarNav({ industry }: { industry?: string }) {
     const pathname = usePathname()
 
     return (
@@ -15,22 +15,34 @@ export function SidebarNav() {
             <NavItem pathname={pathname} href="/dashboard/whatsapp" icon={MessageSquare}>WhatsApp</NavItem>
             <NavItem pathname={pathname} href="/dashboard/billing" icon={CreditCard}>Billing & Plans</NavItem>
 
-            <SectionHeader>Education</SectionHeader>
-            <NavItem pathname={pathname} href="/dashboard/education" icon={GraduationCap}>Dashboard</NavItem>
-            <NavItem pathname={pathname} href="/dashboard/education/students" icon={Users}>Students</NavItem>
-            <NavItem pathname={pathname} href="/dashboard/education/admissions" icon={ClipboardList}>Admissions</NavItem>
-            <NavItem pathname={pathname} href="/dashboard/education/fees" icon={CreditCard}>Fees & Payments</NavItem>
+            {industry === "EDUCATION" && (
+                <>
+                    <SectionHeader>Education</SectionHeader>
+                    <NavItem pathname={pathname} href="/dashboard/education" icon={GraduationCap}>Dashboard</NavItem>
+                    <NavItem pathname={pathname} href="/dashboard/education/students" icon={Users}>Students</NavItem>
+                    <NavItem pathname={pathname} href="/dashboard/education/admissions" icon={ClipboardList}>Admissions</NavItem>
+                    <NavItem pathname={pathname} href="/dashboard/education/fees" icon={CreditCard}>Fees & Payments</NavItem>
+                </>
+            )}
 
-            <SectionHeader>Real Estate</SectionHeader>
-            <NavItem pathname={pathname} href="/dashboard/real-estate" icon={Building2}>Dashboard</NavItem>
-            <NavItem pathname={pathname} href="/dashboard/real-estate/leads" icon={Users}>Leads</NavItem>
-            <NavItem pathname={pathname} href="/dashboard/real-estate/properties" icon={Home}>Properties</NavItem>
-            <NavItem pathname={pathname} href="/dashboard/real-estate/site-visits" icon={Calendar}>Site Visits</NavItem>
+            {industry === "REAL_ESTATE" && (
+                <>
+                    <SectionHeader>Real Estate</SectionHeader>
+                    <NavItem pathname={pathname} href="/dashboard/real-estate" icon={Building2}>Dashboard</NavItem>
+                    <NavItem pathname={pathname} href="/dashboard/real-estate/leads" icon={Users}>Leads</NavItem>
+                    <NavItem pathname={pathname} href="/dashboard/real-estate/properties" icon={Home}>Properties</NavItem>
+                    <NavItem pathname={pathname} href="/dashboard/real-estate/site-visits" icon={Calendar}>Site Visits</NavItem>
+                </>
+            )}
 
-            <SectionHeader>Healthcare</SectionHeader>
-            <NavItem pathname={pathname} href="/dashboard/healthcare" icon={Stethoscope}>Dashboard</NavItem>
-            <NavItem pathname={pathname} href="/dashboard/healthcare/appointments" icon={Calendar}>Appointments</NavItem>
-            <NavItem pathname={pathname} href="/dashboard/healthcare/patients" icon={Users}>Patients</NavItem>
+            {industry === "HEALTHCARE" && (
+                <>
+                    <SectionHeader>Healthcare</SectionHeader>
+                    <NavItem pathname={pathname} href="/dashboard/healthcare" icon={Stethoscope}>Dashboard</NavItem>
+                    <NavItem pathname={pathname} href="/dashboard/healthcare/appointments" icon={Calendar}>Appointments</NavItem>
+                    <NavItem pathname={pathname} href="/dashboard/healthcare/patients" icon={Users}>Patients</NavItem>
+                </>
+            )}
         </nav>
     )
 }
