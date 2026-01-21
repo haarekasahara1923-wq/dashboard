@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { MessageSquare, Bell } from "lucide-react"
+import { MessageSquare, Bell, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
@@ -27,7 +27,22 @@ export async function Sidebar() {
                     <SidebarNav industry={industry} />
                 </div>
                 <div className="mt-auto p-4">
-                    {/* Bottom content if any */}
+                    <div className="rounded-lg border bg-gradient-to-br from-indigo-50 to-purple-50 p-4 shadow-sm dark:from-indigo-950/50 dark:to-purple-950/50">
+                        <div className="mb-2 flex items-center gap-2">
+                            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-600 text-white">
+                                <Zap className="h-4 w-4" />
+                            </span>
+                            <h4 className="font-semibold text-sm">Advanced Automation</h4>
+                        </div>
+                        <p className="mb-3 text-xs text-muted-foreground">
+                            Unlock Bulk WhatsApp, Chatbots, and Email Automation.
+                        </p>
+                        <a href="https://api.wapiflow.site" target="_blank" rel="noopener noreferrer">
+                            <Button size="sm" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">
+                                Automate Your Business
+                            </Button>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
