@@ -1,28 +1,18 @@
 
 import { db } from "@/lib/db"
-
-async function getDevTenant() {
-    const tenant = await db.tenant.findFirst({
-        where: { name: "Demo Real Estate" }
-    })
-
-    if (tenant) return tenant
-
-    return await db.tenant.create({
-        data: {
-            name: "Demo Real Estate",
-            industry: "REAL_ESTATE",
-        }
-    })
-}
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 
 export async function getRealEstateStats() {
-    const tenant = await getDevTenant()
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.tenantId) return { totalLeads: 0, hotLeads: 0, scheduledVisits: 0, dealsClosed: 0 }
 
-    const totalLeads = await db.lead.count({ where: { tenantId: tenant.id } })
-    const hotLeads = await db.lead.count({ where: { tenantId: tenant.id, status: "HOT" } })
-    const scheduledVisits = await db.siteVisit.count({ where: { lead: { tenantId: tenant.id }, date: { gte: new Date() } } })
-    const dealsClosed = await db.deal.count({ where: { tenantId: tenant.id, status: "CLOSED" } })
+    const tenantId = session.user.tenantId
+
+    const totalLeads = await db.lead.count({ where: { tenantId } })
+    const hotLeads = await db.lead.count({ where: { tenantId, status: "HOT" } })
+    const scheduledVisits = await db.siteVisit.count({ where: { lead: { tenantId }, date: { gte: new Date() } } })
+    const dealsClosed = await db.deal.count({ where: { tenantId, status: "CLOSED" } })
 
     return {
         totalLeads,
@@ -33,9 +23,11 @@ export async function getRealEstateStats() {
 }
 
 export async function getLeads() {
-    const tenant = await getDevTenant()
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.tenantId) return []
+
     return await db.lead.findMany({
-        where: { tenantId: tenant.id },
+        where: { tenantId: session.user.tenantId },
         orderBy: { id: 'desc' },
         include: {
             siteVisits: true
@@ -44,11 +36,12 @@ export async function getLeads() {
 }
 
 export async function getUpcomingVisits() {
-    const tenant = await getDevTenant()
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.tenantId) return []
 
     return await db.siteVisit.findMany({
         where: {
-            lead: { tenantId: tenant.id },
+            lead: { tenantId: session.user.tenantId },
             date: { gte: new Date() }
         },
         include: {
@@ -60,3 +53,14 @@ export async function getUpcomingVisits() {
         take: 5
     })
 }
+
+export async function getProperties() {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.tenantId) return []
+
+    return await db.property.findMany({
+        where: { tenantId: session.user.tenantId },
+        orderBy: { id: 'desc' }
+    })
+}
+
