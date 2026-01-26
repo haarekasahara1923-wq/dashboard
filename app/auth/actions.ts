@@ -50,7 +50,7 @@ export async function registerTenant(formData: FormData) {
                     name: `${firstName} ${lastName}`,
                     email: email,
                     password: hashedPassword,
-                    role: "SUPER_ADMIN"
+                    role: "ADMIN"
                 }
             }
         }
